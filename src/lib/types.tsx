@@ -2,7 +2,8 @@ export interface UserType {
   email: string;
   username: string;
   name: string;
-  role: string;
+  password: string;
+  role: ["user", "subscriber"];
 }
 
 export interface TopicType {
@@ -13,3 +14,4 @@ export interface TopicType {
   modified: string;
   views: number;
 }
+

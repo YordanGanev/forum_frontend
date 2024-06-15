@@ -12,9 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserType } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "./user-provider";
+import { useToast } from "../ui/use-toast";
 
 export function UserNav(props: { user: UserType }) {
   const navigate = useNavigate();
+
+  const { toast } = useToast();
+  const { logout } = useUser();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -58,7 +64,16 @@ export function UserNav(props: { user: UserType }) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => navigate("/signout")}>
+        <DropdownMenuItem
+          onSelect={() => {
+            toast({
+              title: "Logged out",
+              description: "You have been logged out",
+            });
+
+            logout();
+          }}
+        >
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

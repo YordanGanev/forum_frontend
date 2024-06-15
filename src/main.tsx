@@ -39,6 +39,7 @@ const router = createBrowserRouter([
       <ThemeProvider>
         <UserProvider>
           <Login></Login>
+          <Toaster />
         </UserProvider>
       </ThemeProvider>
     ),

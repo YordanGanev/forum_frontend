@@ -1,5 +1,5 @@
 import { UserType } from "@/lib/types";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type UserProviderProps = {
   children: React.ReactNode;
@@ -47,22 +47,8 @@ export function UserProvider({
 
   function login(user: UserType) {
     setIsLoading(true);
-    fetch(`http://localhost:8080/users/${user.username}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    })
-      .then((res) => res.json())
-      .then((data: UserType) => {
-        console.log(data);
-        localStorage.setItem(storageKey, JSON.stringify(user));
-        setUser(() => user);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    localStorage.setItem(storageKey, JSON.stringify(user));
+    setUser(() => user);
     setIsLoading(false);
   }
 
@@ -79,6 +65,8 @@ export function UserProvider({
     login,
     logout,
   };
+
+  useEffect(() => {}, [user]);
 
   return (
     <UserProviderContext.Provider {...props} value={value}>

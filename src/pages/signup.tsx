@@ -1,8 +1,9 @@
 import Header from "@/components/custom/header";
+import { SignUpForm } from "@/components/custom/sign-up-form";
 import { useUser } from "@/components/custom/user-provider";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const { user } = useUser();
@@ -29,6 +30,23 @@ export default function Signup() {
   return (
     <>
       <Header></Header>
+      <div className="mx-auto max-w-screen-sm py-4">
+        <div className="flex flex-col space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Create an account
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your information below to create your account
+          </p>
+          <p>
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary">
+              Login
+            </Link>
+          </p>
+        </div>
+        <SignUpForm />
+      </div>
     </>
   );
 }
