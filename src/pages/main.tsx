@@ -40,7 +40,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-  const [count, setCount] = useState(0);
+  const PAGE_SIZE = 5 as const;
 
   const [page, setPage] = useState(0);
 
@@ -56,8 +56,21 @@ export default function Home() {
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
+  const incrementPage = () => {
+    if (topics && topics?.length < PAGE_SIZE) {
+      return;
+    }
+    setPage((prevPage) => prevPage + 1);
+  };
+
+  const decrementPage = () => {
+    setPage((prevPage) => (prevPage > 0 ? prevPage - 1 : 0));
+  };
+
   useEffect(() => {
-    fetch("http://localhost:8080/topics?=page=0&pageSize=55")
+    if (open) return; // Don't fetch if the component is 'open'
+
+    fetch(`http://localhost:8090/topics?page=${page}&pageSize=${PAGE_SIZE}`)
       .then((res) => res.json())
       .then((data: TopicType[]) => {
         console.log(data);
@@ -68,15 +81,12 @@ export default function Home() {
       });
 
     setTopicsLoading(false);
-  }, [open === false]);
+  }, [open, page]);
 
   return (
     <>
       <Header></Header>
       <div className="max-w-screen-xl mx-auto py-2">
-        <div className="">
-          <Button onClick={() => setCount(count + 1)}>Click me {count}</Button>
-        </div>
         <div className="flex flex-col gap-4 py-4">
           {!topicsLoading &&
             topics?.map((topic: TopicType) => {
@@ -86,33 +96,35 @@ export default function Home() {
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious onClick={() => decrementPage()} />
             </PaginationItem>
+            {page > 1 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
             {page > 0 && (
               <PaginationItem>
-                <PaginationLink
-                  onClick={() => {
-                    setPage(() => page - 1);
-                  }}
-                  href="#"
-                >
+                <PaginationLink onClick={() => decrementPage()}>
                   {page}
                 </PaginationLink>
               </PaginationItem>
             )}
             <PaginationItem>
-              <PaginationLink isActive href="#">
-                {page + 1}
+              <PaginationLink isActive>{page + 1}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink onClick={() => incrementPage()}>
+                {page + 2}
               </PaginationLink>
             </PaginationItem>
+            {topics && topics?.length == PAGE_SIZE && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
             <PaginationItem>
-              <PaginationLink href="#">{page + 2}</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext onClick={() => incrementPage()} />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
@@ -124,7 +136,8 @@ export default function Home() {
             <DialogHeader>
               <DialogTitle>Create new topic</DialogTitle>
               <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
+                Create a new topic to share with the community. Topic is
+                discoverable by other users by its title.
               </DialogDescription>
             </DialogHeader>
             <TopicForm setOpen={setOpen} />

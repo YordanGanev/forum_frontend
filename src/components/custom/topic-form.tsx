@@ -17,7 +17,7 @@ import { Input } from "../ui/input";
 import { toast } from "../ui/use-toast";
 
 const TopicSchema = z.object({
-  title: z.string().min(1, "Username is required"),
+  title: z.string().min(1, "Title is required"),
   username: z.string(),
 });
 
@@ -45,7 +45,7 @@ export default function TopicForm({
 
   function onSubmit(values: z.infer<typeof TopicSchema>) {
     setDisabled(true);
-    fetch(`http://localhost:8080/topics`, {
+    fetch(`http://localhost:8090/topics`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export default function TopicForm({
               <FormControl>
                 <Input placeholder="Topic Title" {...field} />
               </FormControl>
-              <FormDescription>Username of registered user.</FormDescription>
+              <FormDescription>New topic title.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

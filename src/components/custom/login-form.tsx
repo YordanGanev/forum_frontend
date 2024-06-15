@@ -27,6 +27,16 @@ const SignUpSchema = z.object({
 });
 
 export function LoginForm() {
+  const FAIL_TOAST = {
+    title: "Failed to login",
+    description: `Please try again letter.`,
+  } as const;
+
+  const SUCCESS_TOAST = (name: string) => ({
+    title: "Successfully logged in",
+    description: `Welcome, ${name}!`,
+  });
+
   const [disabled, setDisabled] = useState(false);
   const navigate = useNavigate();
 
@@ -46,28 +56,28 @@ export function LoginForm() {
     setDisabled(true);
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    fetch(`http://localhost:8080/users/${values.username}`, {
+    fetch(`http://localhost:8090/users/${values.username}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     }).then((res) => {
       if (res.ok) {
-        res.json().then((data: UserType) => {
-          if (data.password === values.password) {
-            toast({
-              title: "Successfully logged in",
-              description: `Welcome, ${data.name}!`,
-            });
-            login(data);
-            navigate("/");
-          }
-        });
-      } else {
-        // toast({
-        //   title: "Failed to login",
-        //   description: `Please try again ${values.username}.`,
-        // });
+        console.log;
+        res
+          .json()
+          .then((data: UserType) => {
+            if (data.password === values.password) {
+              toast(SUCCESS_TOAST(data.name));
+              login(data);
+              navigate("/");
+            } else {
+              toast(FAIL_TOAST);
+            }
+          })
+          .catch(() => {
+            toast(FAIL_TOAST);
+          });
       }
     });
     setDisabled(false);

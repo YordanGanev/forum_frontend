@@ -27,10 +27,9 @@ export function UserNav(props: { user: UserType }) {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-12 w-12">
             <AvatarImage
-              src={`https://cdn.auth0.com/avatars/${props.user.name.slice(
-                0,
-                2
-              )}.png`}
+              src={`https://cdn.auth0.com/avatars/${props.user.name
+                .slice(0, 2)
+                .toLocaleLowerCase()}.png`}
               alt="@shadcn"
             />
             <AvatarFallback>{props.user.name.slice(0, 2)}</AvatarFallback>
