@@ -69,29 +69,45 @@ export default function Home() {
 
   useEffect(() => {
     if (open) return; // Don't fetch if the component is 'open'
-
+    setTopicsLoading(true);
     fetch(`http://localhost:8090/topics?page=${page}&pageSize=${PAGE_SIZE}`)
       .then((res) => res.json())
       .then((data: TopicType[]) => {
         console.log(data);
         setTopics(data);
+        setTopicsLoading(false);
       })
       .catch((err) => {
         console.error(err);
+        setTopicsLoading(false);
       });
-
-    setTopicsLoading(false);
   }, [open, page]);
+
+  useEffect(() => {
+    document.title = "Home";
+  }, []);
 
   return (
     <>
       <Header></Header>
-      <div className="max-w-screen-xl mx-auto py-2">
+      <div className="max-w-screen-xl mx-auto p-2">
         <div className="flex flex-col gap-4 py-4">
+          {topicsLoading && (
+            <div className="animate-pulse bg-foreground rounded-lg p-4">
+              <h1 className="text-2xl font-bold text-background">Loading...</h1>
+            </div>
+          )}
           {!topicsLoading &&
             topics?.map((topic: TopicType) => {
               return <TopicCard topic={topic} key={topic.id} />;
             })}
+          {topics && topics?.length == 0 && (
+            <div className="bg-foreground rounded-lg p-4">
+              <h1 className="text-2xl font-bold text-background">
+                No topics found
+              </h1>
+            </div>
+          )}
         </div>
         <Pagination>
           <PaginationContent>
@@ -113,19 +129,26 @@ export default function Home() {
             <PaginationItem>
               <PaginationLink isActive>{page + 1}</PaginationLink>
             </PaginationItem>
-            <PaginationItem>
-              <PaginationLink onClick={() => incrementPage()}>
-                {page + 2}
-              </PaginationLink>
-            </PaginationItem>
             {topics && topics?.length == PAGE_SIZE && (
+              <>
+                <PaginationItem>
+                  <PaginationLink onClick={() => incrementPage()}>
+                    {page + 2}
+                  </PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              </>
+            )}
+            {topics && (
               <PaginationItem>
-                <PaginationEllipsis />
+                <PaginationNext
+                  isActive={topics?.length != PAGE_SIZE}
+                  onClick={() => incrementPage()}
+                />
               </PaginationItem>
             )}
-            <PaginationItem>
-              <PaginationNext onClick={() => incrementPage()} />
-            </PaginationItem>
           </PaginationContent>
         </Pagination>
       </div>
@@ -145,7 +168,7 @@ export default function Home() {
         </Dialog>
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerContent>
+          <DrawerContent className="p-4">
             <DrawerHeader className="text-left">
               <DrawerTitle>Edit profile</DrawerTitle>
               <DrawerDescription>

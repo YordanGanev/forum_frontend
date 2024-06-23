@@ -27,6 +27,10 @@ export default function Signup() {
     );
   }
 
+  useEffect(() => {
+    document.title = "Sign up";
+  }, []);
+
   return (
     <>
       <Header></Header>

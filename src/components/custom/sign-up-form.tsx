@@ -64,7 +64,7 @@ export function SignUpForm() {
     // });
 
     const { confirmPassword, ...submitData } = values;
-    fetch("http://localhost:8080/users", {
+    fetch("http://localhost:8090/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

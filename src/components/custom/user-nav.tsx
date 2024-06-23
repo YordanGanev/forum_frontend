@@ -14,6 +14,7 @@ import { UserType } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./user-provider";
 import { useToast } from "../ui/use-toast";
+import { getAvatarImage } from "@/hooks/avatar-ref";
 
 export function UserNav(props: { user: UserType }) {
   const navigate = useNavigate();
@@ -26,12 +27,7 @@ export function UserNav(props: { user: UserType }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-12 w-12">
-            <AvatarImage
-              src={`https://cdn.auth0.com/avatars/${props.user.name
-                .slice(0, 2)
-                .toLocaleLowerCase()}.png`}
-              alt="@shadcn"
-            />
+            <AvatarImage src={getAvatarImage(props.user.name)} alt="@shadcn" />
             <AvatarFallback>{props.user.name.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </Button>

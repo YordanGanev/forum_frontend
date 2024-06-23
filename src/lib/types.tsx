@@ -13,5 +13,14 @@ export interface TopicType {
   created: string;
   modified: string;
   views: number;
+  replyCount: number;
 }
 
+export interface TopicReplyType {
+  id: string;
+  topicId: string;
+  username: string;
+  text: string;
+  created: string;
+  modified: string;
+}
