@@ -20,6 +20,15 @@ import TopicReply from "@/components/custom/topic-reply";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { useUser } from "@/components/custom/user-provider";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const MIN_REPLY_LENGTH = 3;
 const MAX_REPLY_LENGTH = 512;
@@ -28,16 +37,17 @@ const FormSchema = z.object({
   text: z
     .string()
     .min(MIN_REPLY_LENGTH, {
-      message: `Bio must be at least ${MIN_REPLY_LENGTH} characters.`,
+      message: `Reply must be at least ${MIN_REPLY_LENGTH} characters.`,
     })
     .max(MAX_REPLY_LENGTH, {
-      message: `Bio must not be longer than ${MAX_REPLY_LENGTH} characters.`,
+      message: `Reply must not be longer than ${MAX_REPLY_LENGTH} characters.`,
     }),
   username: z.string().optional(),
   topicId: z.string().optional(),
 });
 
 export default function Topic() {
+  const PAGE_SIZE = 5 as const;
   const { topicId } = useParams();
 
   const { user } = useUser();
@@ -48,6 +58,8 @@ export default function Topic() {
   const [topic, setTopic] = useState<TopicType | null>(null);
 
   const [replies, setReplies] = useState<TopicReplyType[] | null>(null);
+
+  const [page, setPage] = useState(0);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -77,22 +89,31 @@ export default function Topic() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    }).then((res) => {
-      if (res.ok) {
+    })
+      .then((res) => {
+        if (res.ok) {
+          toast({
+            title: "Reply submitted",
+            description: `Successfully replied to this topic`,
+          });
+          setIsSubmitting(false);
+        } else {
+          toast({
+            title: "Error replying to topic",
+            description: `Please try again letter.`,
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+        }
+      })
+      .catch(() => {
         toast({
-          title: "Reply submitted",
-          description: `Successfully replied to this topic`,
-        });
-        setIsSubmitting(false);
-      } else {
-        toast({
-          title: "Error replying to topic",
-          description: `Please try again letter.`,
+          title: "Error submitting!",
+          description: `Please retry latter!`,
           variant: "destructive",
         });
         setIsSubmitting(false);
-      }
-    });
+      });
   }
 
   useEffect(() => {
@@ -116,14 +137,37 @@ export default function Topic() {
       return;
     }
 
-    fetch(`http://localhost:8090/replies/${topicId}`)
+    fetch(
+      `http://localhost:8090/replies/${topicId}?page=${page}&pageSize=${PAGE_SIZE}`
+    )
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        setReplies(data);
+        if (data.length > 0) {
+          setReplies(data);
+        }
+        if (data.length == 0 && page) {
+          toast({
+            title: "Replies page limit reached!",
+            description: `No more replies available for this topic!`,
+            variant: "destructive",
+          });
+          decrementPage();
+        }
         setIsLoading(false);
       });
-  }, [isSubmitting]);
+  }, [isSubmitting, page]);
+
+  const incrementPage = () => {
+    if (replies && replies?.length < PAGE_SIZE) {
+      return;
+    }
+    setPage((prevPage) => prevPage + 1);
+  };
+
+  const decrementPage = () => {
+    setPage((prevPage) => (prevPage > 0 ? prevPage - 1 : 0));
+  };
 
   return (
     <>
@@ -161,15 +205,61 @@ export default function Topic() {
                   />
                 </div>
               )}
-              {replies?.map((reply) => (
-                <TopicReply key={reply.id} reply={reply} />
-              ))}
+              {replies?.length > 0 && (
+                <>
+                  {replies?.map((reply) => (
+                    <TopicReply key={reply.id} reply={reply} />
+                  ))}
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious onClick={() => decrementPage()} />
+                      </PaginationItem>
+                      {page > 1 && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+                      {page > 0 && (
+                        <PaginationItem>
+                          <PaginationLink onClick={() => decrementPage()}>
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
+                      <PaginationItem>
+                        <PaginationLink isActive>{page + 1}</PaginationLink>
+                      </PaginationItem>
+                      {replies && replies?.length == PAGE_SIZE && (
+                        <>
+                          <PaginationItem>
+                            <PaginationLink onClick={() => incrementPage()}>
+                              {page + 2}
+                            </PaginationLink>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        </>
+                      )}
+                      {replies && (
+                        <PaginationItem>
+                          <PaginationNext
+                            isActive={replies?.length != PAGE_SIZE}
+                            onClick={() => incrementPage()}
+                          />
+                        </PaginationItem>
+                      )}
+                    </PaginationContent>
+                  </Pagination>
+                </>
+              )}
             </div>
 
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="w-2/3 space-y-6 py-4"
+                className="sm:w-2/3 space-y-6 py-4"
               >
                 <FormField
                   control={form.control}
