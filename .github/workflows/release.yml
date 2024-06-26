@@ -22,7 +22,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ secrets.DOCKER_PASSWORD }}/forum_fe:${{ github.event.release.tag_name }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/forum_fe:${{ github.event.release.tag_name }}
           context: .
           file: ./Dockerfile
 
