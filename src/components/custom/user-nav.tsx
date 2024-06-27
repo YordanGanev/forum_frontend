@@ -27,8 +27,11 @@ export function UserNav(props: { user: UserType }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={getAvatarImage(props.user.name)} alt="@shadcn" />
-            <AvatarFallback>{props.user.name.slice(0, 2)}</AvatarFallback>
+            <AvatarImage
+              src={getAvatarImage(props.user.username)}
+              alt="@shadcn"
+            />
+            <AvatarFallback>{props.user.username.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

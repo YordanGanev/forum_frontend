@@ -73,7 +73,6 @@ export default function Home() {
     fetch(`http://localhost:8090/topics?page=${page}&pageSize=${PAGE_SIZE}`)
       .then((res) => res.json())
       .then((data: TopicType[]) => {
-        console.log(data);
         setTopics(data);
         setTopicsLoading(false);
       })
@@ -104,7 +103,7 @@ export default function Home() {
           {topics && topics?.length == 0 && (
             <div className="bg-foreground rounded-lg p-4">
               <h1 className="text-2xl font-bold text-background">
-                No topics found
+                No topics {page > 0 ? " more " : ""} found
               </h1>
             </div>
           )}

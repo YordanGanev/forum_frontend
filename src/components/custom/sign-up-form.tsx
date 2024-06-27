@@ -150,7 +150,7 @@ export function SignUpForm() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>At least 8 symbols long.</FormDescription>
+              <FormDescription>At least 6 symbols long.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -168,7 +168,7 @@ export function SignUpForm() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>At least 8 symbols long.</FormDescription>
+              <FormDescription>At least 6 symbols long.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

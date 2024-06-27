@@ -34,7 +34,7 @@ export default function Signup() {
   return (
     <>
       <Header></Header>
-      <div className="mx-auto max-w-screen-sm py-4">
+      <div className="mx-auto max-w-screen-sm px-2 py-4">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
             Create an account

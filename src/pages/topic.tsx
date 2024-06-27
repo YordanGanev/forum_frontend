@@ -18,7 +18,7 @@ import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TopicReply from "@/components/custom/topic-reply";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments } from "@fortawesome/free-regular-svg-icons";
+import { faComments, faEye } from "@fortawesome/free-regular-svg-icons";
 import { useUser } from "@/components/custom/user-provider";
 import {
   Pagination,
@@ -29,6 +29,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import IconAccent from "@/components/custom/icon-accent";
+import { faCalendar, faComment } from "@fortawesome/free-solid-svg-icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarImage } from "@/hooks/avatar-ref";
 
 const MIN_REPLY_LENGTH = 3;
 const MAX_REPLY_LENGTH = 512;
@@ -49,18 +53,12 @@ const FormSchema = z.object({
 export default function Topic() {
   const PAGE_SIZE = 5 as const;
   const { topicId } = useParams();
-
   const { user } = useUser();
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [topic, setTopic] = useState<TopicType | null>(null);
-
   const [replies, setReplies] = useState<TopicReplyType[] | null>(null);
-
   const [page, setPage] = useState(0);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -72,15 +70,11 @@ export default function Topic() {
         description: `Please login in order to reply to this topics!`,
         variant: "destructive",
       });
-
       return;
     }
 
     data.topicId = topicId || "";
     data.username = user.username;
-
-    console.log(data);
-
     setIsSubmitting(true);
 
     fetch(`http://localhost:8090/replies`, {
@@ -95,6 +89,9 @@ export default function Topic() {
           toast({
             title: "Reply submitted",
             description: `Successfully replied to this topic`,
+          });
+          form.reset({
+            text: "",
           });
           setIsSubmitting(false);
         } else {
@@ -143,9 +140,14 @@ export default function Topic() {
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        if (data.length > 0) {
+        if (!replies) {
           setReplies(data);
         }
+
+        if (replies && replies?.length > 0 && data.length > 0) {
+          setReplies(data);
+        }
+
         if (data.length == 0 && page) {
           toast({
             title: "Replies page limit reached!",
@@ -180,13 +182,32 @@ export default function Topic() {
         )}
         {!isLoading && topic && replies && (
           <>
-            <h1 className="text-3xl font-bold"> Topic {topicId} </h1>
-            <div>
-              <h1> {topic?.title} </h1>
-              <p> {topic?.username} </p>
+            <h1 className="text-3xl sm:text-5xl font-bold"> {topic.title} </h1>
+            <div className="border-b-4 pb-10 ">
+              <div className="sm:flex gap-8">
+                <div className="flex gap-2 items-center">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={getAvatarImage(topic.username)}
+                    ></AvatarImage>
+                    <AvatarFallback>
+                      {topic.username.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="font-bold"> {topic?.username} </p>
+                </div>
+                <IconAccent text={topic.views.toString()} icon={faEye} />
+                <IconAccent
+                  text={topic.replyCount.toString()}
+                  icon={faComment}
+                />
+                <IconAccent
+                  text={new Date(topic.created).toDateString()}
+                  icon={faCalendar}
+                />
+              </div>
             </div>
             <div>
-              <h1> Replies </h1>
               {replies?.length == 0 && (
                 <div className="sm:w-2/3 sm:flex p-4 my-4 gap-8 sm:flex-row-reverse justify-end items-center border-2 border-muted  rounded-3xl space-2-y">
                   <div className="w-full">
@@ -207,9 +228,11 @@ export default function Topic() {
               )}
               {replies?.length > 0 && (
                 <>
-                  {replies?.map((reply) => (
-                    <TopicReply key={reply.id} reply={reply} />
-                  ))}
+                  <div className="divide-y-2">
+                    {replies?.map((reply) => (
+                      <TopicReply key={reply.id} reply={reply} />
+                    ))}
+                  </div>
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>

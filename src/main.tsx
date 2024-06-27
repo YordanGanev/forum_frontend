@@ -9,6 +9,7 @@ import { UserProvider } from "./components/custom/user-provider.tsx";
 import Signup from "./pages/signup.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
 import Login from "./pages/login.tsx";
+import Profile from "./pages/profile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,17 @@ const router = createBrowserRouter([
       <ThemeProvider>
         <UserProvider>
           <Topic></Topic>
+          <Toaster />
+        </UserProvider>
+      </ThemeProvider>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <ThemeProvider>
+        <UserProvider>
+          <Profile></Profile>
           <Toaster />
         </UserProvider>
       </ThemeProvider>
